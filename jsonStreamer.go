@@ -127,25 +127,6 @@ func (self *JsonStreamer) WriteStringValue(value string) (err error) {
 	return
 }
 
-/*
-func (self *JsonStreamer) WriteStringValueBytes(value []byte) (err error) {
-	self.lastWasKey = false
-	_, err = self.writer.Write(DOUBLE_QUOTE)
-	if nil != err {
-		return
-	}
-
-	value = self.escapeStringValueBytes(value)
-
-	_, err = self.writer.Write(value)
-	if nil != err {
-		return
-	}
-	_, err = self.writer.Write(DOUBLE_QUOTE)
-	return
-}
-*/
-
 func (self *JsonStreamer) escapeStringValue(value string) (result string) {
 	result = value
 	result = strings.Replace(result, "<", "\u003c", -1)
@@ -156,27 +137,8 @@ func (self *JsonStreamer) escapeStringValue(value string) (result string) {
 	result = strings.Replace(result, "\r", "\\\r", -1)
 	result = strings.Replace(result, "\t", "\\\t", -1)
 	result = strings.Replace(result, "\v", "\\\v", -1)
-	result = strings.Replace(result, "'", "\\'", -1)
 	result = strings.Replace(result, "\"", "\\\"", -1)
 	result = strings.Replace(result, "\\", "\\\\", -1)
 	return
 }
-
-/*
-func (self *JsonStreamer) escapeStringValueBytes(value []byte) (result []byte) {
-    value = bytes.Replace(value, []byte{"<"}, []byte{"\u003c"}, -1)
-    value = bytes.Replace(value, []byte{">"}, []byte{"\u003e"}, -1)
-	value = bytes.Replace(value, []byte{"\b"}, []byte{"\\b"}, -1)
-	value = bytes.Replace(value, []byte{"\f"}, []byte{"\\f"}, -1)
-	value = bytes.Replace(value, []byte{"\n"}, []byte{"\\n"}, -1)
-	value = bytes.Replace(value, []byte{"\r"}, []byte{"\\r"}, -1)
-	value = bytes.Replace(value, []byte{"\t"}, []byte{"\\t"}, -1)
-	value = bytes.Replace(value, []byte{"\v"}, []byte{"\\v"}, -1)
-	value = bytes.Replace(value, []byte{"\'"},  []byte{"\\'"}, -1)
-	value = bytes.Replace(value, []byte{"\'"}, []byte{"\\\""}, -1)
-	value = bytes.Replace(value, []byte{"\\"}, []byte{"\\\\"}, -1)
-	return
-}
-*/
-
 
