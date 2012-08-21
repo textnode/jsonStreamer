@@ -16,6 +16,7 @@ package jsonStreamer
 
 import (
 	"io"
+	"strconv"
 	"strings"
 )
 
@@ -27,6 +28,10 @@ var END_ARRAY []byte = []byte{']'}
 var COLON []byte = []byte{':'}
 var DOUBLE_QUOTE []byte = []byte{'"'}
 var FIELD_SEPARATOR []byte = []byte{','}
+
+var TRUE []byte = []byte("true")
+var FALSE []byte = []byte("false")
+var NULL []byte = []byte("null")
 
 // Could just be a bool, but there might be edge cases I haven't discovered and hence extra fields could be needed in future
 type Frame struct {
@@ -110,35 +115,66 @@ func (self *JsonStreamer) WriteKey(name string) (err error) {
 	return
 }
 
-func (self *JsonStreamer) WriteStringValue(value string) (err error) {
+func (self *JsonStreamer) WriteStringValue(value *string) (err error) {
 	self.lastWasKey = false
-	_, err = self.writer.Write(DOUBLE_QUOTE)
-	if nil != err {
-		return
-	}
+	if nil == value {
+		_, err = self.writer.Write(NULL)
+	} else {
+		_, err = self.writer.Write(DOUBLE_QUOTE)
+		if nil != err {
+			return
+		}
 
-	value = self.escapeStringValue(value)
+		valueString := self.escapeStringValue(value)
 
-	_, err = self.writer.Write([]byte(value))
-	if nil != err {
-		return
+		_, err = self.writer.Write([]byte(valueString))
+		if nil != err {
+			return
+		}
+		_, err = self.writer.Write(DOUBLE_QUOTE)
 	}
-	_, err = self.writer.Write(DOUBLE_QUOTE)
 	return
 }
 
-func (self *JsonStreamer) escapeStringValue(value string) (result string) {
-	result = value
-	result = strings.Replace(result, "<", "\u003c", -1)
-	result = strings.Replace(result, ">", "\u003e", -1)
-	result = strings.Replace(result, "\b", "\\\b", -1)
-	result = strings.Replace(result, "\f", "\\\f", -1)
-	result = strings.Replace(result, "\n", "\\\n", -1)
-	result = strings.Replace(result, "\r", "\\\r", -1)
-	result = strings.Replace(result, "\t", "\\\t", -1)
-	result = strings.Replace(result, "\v", "\\\v", -1)
-	result = strings.Replace(result, "\"", "\\\"", -1)
+func (self *JsonStreamer) escapeStringValue(value *string) (result string) {
+	result = *value
 	result = strings.Replace(result, "\\", "\\\\", -1)
+	result = strings.Replace(result, "\"", "\\\"", -1)
+	result = strings.Replace(result, "</", "<\\/", -1)
+	result = strings.Replace(result, "\b", "\\\b", -1)
+	result = strings.Replace(result, "\t", "\\\t", -1)
+	result = strings.Replace(result, "\n", "\\\n", -1)
+	result = strings.Replace(result, "\f", "\\\f", -1)
+	result = strings.Replace(result, "\r", "\\\r", -1)
 	return
 }
 
+func (self *JsonStreamer) WriteBoolValue(value *bool) (err error) {
+	self.lastWasKey = false
+	if nil == value {
+		_, err = self.writer.Write(NULL)
+	} else {
+		if *value {
+			_, err = self.writer.Write(TRUE)
+		} else {
+			_, err = self.writer.Write(FALSE)
+		}
+	}
+	return
+}
+
+func (self *JsonStreamer) WriteIntValue(value *int) (err error) {
+	self.lastWasKey = false
+	if nil == value {
+		_, err = self.writer.Write(NULL)
+	} else {
+		_, err = self.writer.Write([]byte(strconv.Itoa(*value)))
+	}
+	return
+}
+
+func (self *JsonStreamer) WriteNullValue() (err error) {
+	self.lastWasKey = false
+	_, err = self.writer.Write(NULL)
+	return
+}
