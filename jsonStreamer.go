@@ -131,14 +131,14 @@ func (self *JsonStreamer) escapeStringValue(value string) (result string) {
 	result = value
 	result = strings.Replace(result, "<", "\u003c", -1)
 	result = strings.Replace(result, ">", "\u003e", -1)
+	result = strings.Replace(result, "\\", "\\\\", -1)
+	result = strings.Replace(result, "\"", "\\\"", -1)
 	result = strings.Replace(result, "\b", "\\\b", -1)
 	result = strings.Replace(result, "\f", "\\\f", -1)
 	result = strings.Replace(result, "\n", "\\\n", -1)
 	result = strings.Replace(result, "\r", "\\\r", -1)
 	result = strings.Replace(result, "\t", "\\\t", -1)
 	result = strings.Replace(result, "\v", "\\\v", -1)
-	result = strings.Replace(result, "\"", "\\\"", -1)
-	result = strings.Replace(result, "\\", "\\\\", -1)
 	return
 }
 
